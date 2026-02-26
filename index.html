@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>FUN WHO</title>
+  <style>
+    :root{
+      --pink:#ff4fa3;
+      --pink-dark:#e33a8f;
+      --pink-soft:#ffe0ef;
+      --bg:#ffdfec;
+      --text:#111;
+      --muted:#6b6b6b;
+      --radius:18px;
+      --shadow: 0 18px 40px rgba(0,0,0,.14);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 14px 14px 22px;
+    }
+
+    .app{
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
+
+    /* ===== Fun header + buttons ===== */
+    header{
+      position: relative;
+      overflow: hidden;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background:
+        radial-gradient(1200px 220px at 10% 0%, rgba(255,255,255,.95), rgba(255,255,255,.78)),
+        linear-gradient(90deg, rgba(255,79,163,.18), rgba(255,255,255,1));
+      border: 1px solid rgba(255,79,163,.22);
+      box-shadow: 0 10px 28px rgba(0,0,0,.08);
+    }
+
+    header::before, header::after{
+      content:"";
+      position:absolute;
+      pointer-events:none;
+      inset:-40px;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,79,163,.30) 0 2px, transparent 3px),
+        radial-gradient(circle at 65% 20%, rgba(255,79,163,.18) 0 2px, transparent 3px),
+        radial-gradient(circle at 85% 55%, rgba(255,79,163,.22) 0 2px, transparent 3px),
+        radial-gradient(circle at 35% 75%, rgba(255,79,163,.14) 0 2px, transparent 3px);
+      opacity:.85;
+      filter: blur(.2px);
+    }
+    header::after{
+      background: radial-gradient(800px 120px at 80% 10%, rgba(255,79,163,.12), transparent 60%);
+      opacity:1;
+    }
+
+    .title{
+      display:flex;
+      flex-direction:column;
+      gap: 2px;
+      position: relative;
+      z-index: 1;
+    }
+    .title h1{
+      margin:0;
+      font-size: 22px;
+      letter-spacing: .6px;
+      font-weight: 950;
+      line-height: 1;
+    }
+    .title h1 .spark{
+      background: linear-gradient(90deg, var(--pink), var(--pink-dark));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .title p{
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: rgba(0,0,0,.62);
+      font-weight: 600;
+    }
+
+    .mode-pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      margin-top:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      background: rgba(255,79,163,.14);
+      border: 1px solid rgba(255,79,163,.22);
+      color: var(--pink-dark);
+    }
+    .mode-dot{
+      width:10px;height:10px;border-radius:999px;
+      background: var(--pink);
+      box-shadow: 0 0 0 4px rgba(255,79,163,.18);
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+    @keyframes pulse{
+      0%,100%{transform:scale(1); opacity:1}
+      50%{transform:scale(1.12); opacity:.75}
+    }
+
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+      justify-content:flex-end;
+      position: relative;
+      z-index: 1;
+    }
+
+    button{
+      border: 1px solid rgba(255,79,163,.30);
+      background: linear-gradient(90deg, var(--pink), var(--pink-dark));
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: .2px;
+      cursor: pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      box-shadow: 0 8px 18px rgba(255,79,163,.15);
+    }
+
+    button.secondary{
+      background: rgba(255,255,255,.9);
+      color: var(--pink-dark);
+      border: 1px solid rgba(227,58,143,.35);
+      box-shadow: 0 8px 18px rgba(255,79,163,.10);
+    }
+
+    button.warn{
+      background: #111;
+      color: #fff;
+      border: none;
+      box-shadow: 0 8px 18px rgba(0,0,0,.18);
+    }
+
+    button:active{transform: translateY(1px) scale(.99)}
+
+    button.is-picking{
+      background: linear-gradient(90deg, #111, #333) !important;
+      color:#fff !important;
+      box-shadow: 0 10px 22px rgba(0,0,0,.20) !important;
+      transform: translateY(-1px);
+      border: none !important;
+    }
+
+    /* ===== Status bar ===== */
+    .statusbar{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap:wrap;
+      padding: 10px 12px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.06);
+      font-size: 13px;
+      border: 1px solid rgba(0,0,0,.06);
+    }
+
+    .badge{
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-weight: 900;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      white-space:nowrap;
+      background: rgba(255,79,163,.18);
+      border: 1px solid rgba(255,79,163,.25);
+      color: var(--pink-dark);
+    }
+
+    /* Push cards-left badge to the right */
+    .badge.right{
+      margin-left: auto;
+    }
+
+    .hint{
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    /* Board look */
+    .board{
+      background: linear-gradient(180deg, var(--pink), var(--pink-dark));
+      border-radius: var(--radius);
+      padding: 14px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow:hidden;
+    }
+
+    .board::before{
+      content:"";
+      position:absolute;
+      inset: 10px;
+      border-radius: calc(var(--radius) - 8px);
+      border: 2px solid rgba(255,255,255,.45);
+      pointer-events:none;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px){
+      .grid{grid-template-columns: repeat(5, 1fr);}
+    }
+    @media (max-width: 760px){
+      .grid{grid-template-columns: repeat(4, 1fr);}
+    }
+    @media (max-width: 520px){
+      .grid{grid-template-columns: repeat(3, 1fr);}
+    }
+
+    .card{
+      background: rgba(255,255,255,.20);
+      border-radius: 14px;
+      padding: 8px;
+      position: relative;
+      min-height: 118px;
+      display:flex;
+      flex-direction:column;
+      gap: 6px;
+      cursor: pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      transition: transform .10s ease;
+    }
+
+    .card:active{transform: translateY(1px)}
+    .card.selected{
+      outline: 3px solid rgba(255,255,255,.85);
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+
+    .photo{
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 12px;
+      background: rgba(255,255,255,.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      position: relative;
+    }
+
+    .photo img{
+      width:100%;
+      height:100%;
+      object-fit: cover;
+      display:block;
+    }
+
+    .name{
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(255,255,255,.95);
+      text-align:center;
+      letter-spacing:.2px;
+      text-transform: uppercase;
+    }
+
+    .shutter{
+      position:absolute;
+      inset: 0;
+      background: var(--pink-dark);
+      border-radius: 12px;
+      transform-origin: top;
+      transform: translateY(-102%);
+      transition: transform .16s ease;
+      box-shadow: inset 0 -4px 0 rgba(0,0,0,.10);
+    }
+
+    .card.down .shutter{
+      transform: translateY(0%);
+    }
+
+    .card.down .photo img{
+      filter: saturate(.9) contrast(.95);
+    }
+
+    .empty{
+      color: rgba(255,255,255,.88);
+      font-weight: 900;
+      font-size: 12px;
+      text-align:center;
+      padding: 10px 0 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="title">
+        <h1><span class="spark">FUN WHO</span></h1>
+        <div class="mode-pill" id="modePill" style="display:none;">
+          <span class="mode-dot"></span>
+          Pick your secret!
+        </div>
+      </div>
+
+      <div class="controls">
+        <button id="setSecretBtn" class="secondary">Set Secret</button>
+        <button id="resetRoundBtn" class="secondary">Reset Round</button>
+        <button id="clearAllBtn" class="warn">Clear All</button>
+      </div>
+    </header>
+
+    <div class="statusbar">
+      <div class="badge" id="secretBadge">Secret: none</div>
+
+      <div class="hint" id="hint"></div>
+
+      <div class="badge right" id="cardsLeftBadge">Cards left: <strong>0</strong></div>
+    </div>
+
+    <section class="board">
+      <div class="grid" id="grid"></div>
+    </section>
+  </div>
+
+  <script>
+    const CHARACTER_IMAGES = [
+      "characters/ANGIE.JPG",
+      "characters/BARB.JPG",
+      "characters/DIMPLES.JPG",
+      "characters/KURT.JPG",
+      "characters/NAJEEB.JPG",
+      "characters/PRAVEEN.JPG",
+      "characters/RAVEEN.JPG",
+      "characters/WILL.JPG",
+      "characters/ARMAN.JPG",
+      "characters/BLUEY.JPG",
+      "characters/EILISH.JPG",
+      "characters/LACHLAN.JPG",
+      "characters/OSHANI.JPG",
+      "characters/RAJ.JPG",
+      "characters/RYAN.JPG",
+      "characters/ZARA.JPG",
+      "characters/ATANA.JPG",
+      "characters/DEVAN.JPG",
+      "characters/ELLA.JPG",
+      "characters/MANDY.JPG",
+      "characters/PRANIKA.JPG",
+      "characters/RANUDI.JPG",
+      "characters/SHENNEN.JPG",
+      "characters/ZOE.JPG"
+    ];
+
+    const STORAGE_KEY = "guesswho_code_v1";
+    let state = {
+      cards: [],
+      secretId: null,
+      mode: "play"
+    };
+
+    const gridEl = document.getElementById("grid");
+    const secretBadge = document.getElementById("secretBadge");
+    const cardsLeftBadge = document.getElementById("cardsLeftBadge");
+    const hintEl = document.getElementById("hint");
+    const modePill = document.getElementById("modePill");
+
+    const setSecretBtn = document.getElementById("setSecretBtn");
+    const resetRoundBtn = document.getElementById("resetRoundBtn");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+
+    function save(){
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+      catch(e){ console.warn("Save failed", e); }
+    }
+
+    function load(){
+      try{
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if(raw) state = JSON.parse(raw);
+      }catch(e){
+        console.warn("Load failed", e);
+      }
+    }
+
+    function filenameToName(path){
+      const file = (path || "").split("/").pop() || "";
+      const noExt = file.replace(/\.[^/.]+$/, "");
+      return noExt
+        .replace(/^\d+\s*[-_ ]\s*/,"")
+        .replace(/[_]+/g, " ")
+        .trim();
+    }
+
+    function setMode(mode){
+      state.mode = mode;
+
+      const picking = mode === "pickSecret";
+      if(picking){
+        setSecretBtn.textContent = "Tap a card…";
+        setSecretBtn.classList.add("is-picking");
+        setSecretBtn.classList.remove("secondary");
+        if(modePill) modePill.style.display = "inline-flex";
+      }else{
+        setSecretBtn.textContent = "Set Secret";
+        setSecretBtn.classList.remove("is-picking");
+        setSecretBtn.classList.add("secondary");
+        if(modePill) modePill.style.display = "none";
+      }
+
+      render();
+      save();
+    }
+
+    function loadFromCode(){
+      const list = CHARACTER_IMAGES.slice();
+
+      const prevDownBySrc = new Map((state.cards || []).map(c => [c.src, !!c.down]));
+      const prevIdBySrc   = new Map((state.cards || []).map(c => [c.src, c.id]));
+
+      state.cards = list.map(src => {
+        const norm = src.startsWith("./") || src.startsWith("/") ? src : ("./" + src);
+        return {
+          id: prevIdBySrc.get(norm) || crypto.randomUUID(),
+          src: norm,
+          name: filenameToName(norm),
+          down: prevDownBySrc.get(norm) || false
+        };
+      });
+
+      if(state.secretId && !state.cards.some(c => c.id === state.secretId)){
+        state.secretId = null;
+      }
+    }
+
+    function updateCardsLeft(cards){
+      const left = (cards || []).filter(c => !c.down).length;
+      if(cardsLeftBadge){
+        cardsLeftBadge.innerHTML = `Cards left: <strong>${left}</strong>`;
+      }
+    }
+
+    function render(){
+      gridEl.innerHTML = "";
+
+      const cards = state.cards || [];
+      const secretCard = cards.find(c => c.id === state.secretId);
+      secretBadge.textContent = `Secret: ${secretCard ? secretCard.name : "none"}`;
+
+      updateCardsLeft(cards);
+
+      hintEl.innerHTML =
+        state.mode === "pickSecret"
+          ? "Pick your secret: <b>tap one card</b> ✨"
+          : "Play: <b>tap cards</b> to flip";
+
+      if(cards.length === 0){
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Add your image paths to CHARACTER_IMAGES in the code.";
+        gridEl.appendChild(empty);
+        return;
+      }
+
+      for(const card of cards){
+        const cardEl = document.createElement("div");
+        cardEl.className = "card" + (card.down ? " down" : "") + (card.id === state.secretId ? " selected" : "");
+
+        const photoEl = document.createElement("div");
+        photoEl.className = "photo";
+
+        const img = document.createElement("img");
+        img.src = card.src;
+        img.alt = card.name;
+        photoEl.appendChild(img);
+
+        const shutter = document.createElement("div");
+        shutter.className = "shutter";
+        photoEl.appendChild(shutter);
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "name";
+        nameEl.textContent = card.name || "UNNAMED";
+
+        cardEl.appendChild(photoEl);
+        cardEl.appendChild(nameEl);
+
+        cardEl.addEventListener("click", () => {
+          if(state.mode === "pickSecret"){
+            state.secretId = card.id;
+            setMode("play");
+            return;
+          }
+          card.down = !card.down;
+          save();
+          render();
+        });
+
+        gridEl.appendChild(cardEl);
+      }
+    }
+
+    setSecretBtn.addEventListener("click", () => {
+      if((state.cards || []).length === 0) return;
+      setMode(state.mode === "pickSecret" ? "play" : "pickSecret");
+    });
+
+    resetRoundBtn.addEventListener("click", () => {
+      for(const c of (state.cards || [])) c.down = false;
+      save();
+      render();
+    });
+
+    clearAllBtn.addEventListener("click", () => {
+      const ok = confirm("Clear all saved state on this device?");
+      if(!ok) return;
+      state = { cards: [], secretId: null, mode: "play" };
+      localStorage.removeItem(STORAGE_KEY);
+      loadFromCode();
+      save();
+      render();
+    });
+
+    load();
+    loadFromCode();
+    save();
+    render();
+  </script>
+</body>
+</html>
